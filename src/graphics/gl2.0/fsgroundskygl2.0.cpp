@@ -17,13 +17,31 @@ public:
 	FsGL2VariableVertexStorage vtxBuf;
 };
 
+namespace
+{
+YsColor FsBlendAtmosphereColor(const YsColor &horizon,const YsColor &sky,double t)
+{
+	t=YsBound(t,0.0,1.0);
+	// Smoothstep keeps more airlight close to the horizon and removes the
+	// visibly linear transition into the upper-sky colour.
+	t=t*t*(3.0-2.0*t);
+
+	YsColor color;
+	color.SetDoubleRGB(
+	    horizon.Rd()*(1.0-t)+sky.Rd()*t,
+	    horizon.Gd()*(1.0-t)+sky.Gd()*t,
+	    horizon.Bd()*(1.0-t)+sky.Bd()*t);
+	return color;
+}
+}
+
 // Implementation //////////////////////////////////////////
 FsGroundSky::FsGroundSky()
 {
 	res=new FsGroundSkyGraphicCache;
 
 	nLayer=8;
-	nDeg=30.0;
+	nDeg=45.0;
 
 	int i,j;
 	double h,p,x,y,z;
@@ -262,14 +280,8 @@ void FsGroundSky::DrawGradation
 		a1=(nRadianf*GLfloat(i+1)/GLfloat(nLayer));
 
 		k=i+1;
-		col0.SetDoubleRGB
-		  ((isky.Rd()*double(i)+horizon.Rd()*double(nLayer-i))/double(nLayer),
-		   (isky.Gd()*double(i)+horizon.Gd()*double(nLayer-i))/double(nLayer),
-		   (isky.Bd()*double(i)+horizon.Bd()*double(nLayer-i))/double(nLayer));
-		col1.SetDoubleRGB
-		  ((isky.Rd()*double(k)+horizon.Rd()*double(nLayer-k))/double(nLayer),
-		   (isky.Gd()*double(k)+horizon.Gd()*double(nLayer-k))/double(nLayer),
-		   (isky.Bd()*double(k)+horizon.Bd()*double(nLayer-k))/double(nLayer));
+		col0=FsBlendAtmosphereColor(horizon,isky,double(i)/double(nLayer));
+		col1=FsBlendAtmosphereColor(horizon,isky,double(k)/double(nLayer));
 
 		res->vtxBuf.AddColor(col0.Rf(),col0.Gf(),col0.Bf(),1.0f);
 		res->vtxBuf.AddVertex(x0,cylRad*sinf(a0),cylRad*(cosf(a0)));
@@ -287,18 +299,18 @@ void FsGroundSky::DrawGradation
 	}
 
 	a1=nRadianf;
-	res->vtxBuf.AddColor(col0.Rf(),col0.Gf(),col0.Bf(),1.0f);
+	res->vtxBuf.AddColor(isky.Rf(),isky.Gf(),isky.Bf(),1.0f);
 	res->vtxBuf.AddVertex(x0,cylRad*sinf(a1), cylRad*cosf(a1));
-	res->vtxBuf.AddColor(col0.Rf(),col0.Gf(),col0.Bf(),1.0f);
+	res->vtxBuf.AddColor(isky.Rf(),isky.Gf(),isky.Bf(),1.0f);
 	res->vtxBuf.AddVertex(x1,cylRad*sinf(a1), cylRad*cosf(a1));
-	res->vtxBuf.AddColor(col0.Rf(),col0.Gf(),col0.Bf(),1.0f);
+	res->vtxBuf.AddColor(isky.Rf(),isky.Gf(),isky.Bf(),1.0f);
 	res->vtxBuf.AddVertex(x1,cylRad*sinf(a1),-cylRad*cosf(a1));
 
-	res->vtxBuf.AddColor(col0.Rf(),col0.Gf(),col0.Bf(),1.0f);
+	res->vtxBuf.AddColor(isky.Rf(),isky.Gf(),isky.Bf(),1.0f);
 	res->vtxBuf.AddVertex(x1,cylRad*sinf(a1),-cylRad*cosf(a1));
-	res->vtxBuf.AddColor(col0.Rf(),col0.Gf(),col0.Bf(),1.0f);
+	res->vtxBuf.AddColor(isky.Rf(),isky.Gf(),isky.Bf(),1.0f);
 	res->vtxBuf.AddVertex(x0,cylRad*sinf(a1),-cylRad*cosf(a1));
-	res->vtxBuf.AddColor(col0.Rf(),col0.Gf(),col0.Bf(),1.0f);
+	res->vtxBuf.AddColor(isky.Rf(),isky.Gf(),isky.Bf(),1.0f);
 	res->vtxBuf.AddVertex(x0,cylRad*sinf(a1), cylRad*cosf(a1));
 
 	YsGLSLDrawPrimitiveVtxColfv(renderer,GL_TRIANGLES,res->vtxBuf.nVtx,res->vtxBuf.vtxArray,res->vtxBuf.colArray);
