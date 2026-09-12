@@ -25,7 +25,7 @@ jobs:
     - name: mkdir
       run: mkdir ci_windows
     - name: cmake
-      run: cmake ../src
+      run: cmake ../src -DCMAKE_POLICY_VERSION_MINIMUM=3.5
       working-directory: ./ci_windows
     - name: build
       run: cmake --build . --config Release --parallel --target ysflight64_gl1 ysflight64_gl2 ysflight64_gl1demo ysflight64_gl2demo ysflight64_nownd
@@ -56,7 +56,7 @@ jobs:
     - name: install-Python
       run: sudo apt-get install python3 python-is-python3
     - name: cmake
-      run: cmake ../src -DCMAKE_BUILD_TYPE=Release
+      run: cmake ../src -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5
       working-directory: ./ci_ubuntu
     - name: build
       run: cmake --build . --config Release --parallel --target ysflight64_gl1 ysflight64_gl2 ysflight64_gl1demo ysflight64_gl2demo ysflight64_nownd
@@ -76,7 +76,7 @@ jobs:
     - name: mkdir
       run: mkdir ci_macos
     - name: cmake
-      run: cmake ../src -DCMAKE_BUILD_TYPE=Release
+      run: cmake ../src -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5
       working-directory: ./ci_macos
     - name: build
       run: cmake --build . --config Release --parallel --target ysflight64_gl1 ysflight64_gl2 ysflight64_gl1demo ysflight64_gl2demo ysflight64_nownd
