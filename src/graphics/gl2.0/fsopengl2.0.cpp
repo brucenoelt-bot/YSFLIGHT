@@ -395,19 +395,21 @@ void FsSetDirectionalLight(const YsVec3 &/*cameraPosition*/ ,const YsVec3 &light
 	switch(env)
 	{
 	case FSDAYLIGHT:
-		dif[0]=0.6F;
-		dif[1]=0.6F;
-		dif[2]=0.6F;
+		// A subtly warm key light and cool sky fill give aircraft surfaces
+		// better separation without changing the material system.
+		dif[0]=0.68F;
+		dif[1]=0.65F;
+		dif[2]=0.58F;
 		dif[3]=1.0F;
 
-		amb[0]=0.3F;
-		amb[1]=0.3F;
-		amb[2]=0.3F;
+		amb[0]=0.28F;
+		amb[1]=0.31F;
+		amb[2]=0.36F;
 		amb[3]=1.0F;
 
-		spc[0]=0.9F;
-		spc[1]=0.9F;
-		spc[2]=0.9F;
+		spc[0]=0.95F;
+		spc[1]=0.92F;
+		spc[2]=0.84F;
 		spc[3]=1.0F;
 		break;
 	case FSNIGHT:
@@ -471,7 +473,7 @@ void FsFogOn(const YsColor &col,const double &visibility)
 	// f  0:Completely fogged out   1:Clear
 	// f=e^(-d*d)
 	// d  0:Clear      Infinity: Completely fogged out
-	// 99% fogged out means:  e^(-d*d)=0.01  WhatÅfs d?
+	// 99% fogged out means:  e^(-d*d)=0.01  What is d?
 	// -d*d=loge(0.01)
 	// -d*d= -4.60517
 	// d=2.146
@@ -1222,4 +1224,3 @@ void FsGraphicsTest(int i)
 	YsGLSLRenderTexture2D(bitmapRenderer,0,0,YSGLSL_HALIGN_LEFT,YSGLSL_VALIGN_TOP,256,256,i);
 	YsGLSLEndUseBitmapRenderer(bitmapRenderer);
 }
-

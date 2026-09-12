@@ -81,6 +81,27 @@ extern void DrawSharewareMessage(void);
 
 FsVisualSrf *cockpit=nullptr;
 
+namespace
+{
+YsColor FsMakeDaylightHazeColor(const YsColor &sky)
+{
+	// Blend the field-defined sky colour with pale atmospheric airlight.
+	// Keeping the sky in the calculation preserves each scenery's palette
+	// while avoiding the flat neutral-grey horizon used by the legacy renderer.
+	const double skyMix=0.28;
+	const double airlightR=0.78;
+	const double airlightG=0.86;
+	const double airlightB=0.94;
+
+	YsColor haze;
+	haze.SetDoubleRGB(
+	    airlightR*(1.0-skyMix)+sky.Rd()*skyMix,
+	    airlightG*(1.0-skyMix)+sky.Gd()*skyMix,
+	    airlightB*(1.0-skyMix)+sky.Bd()*skyMix);
+	return haze;
+}
+}
+
 ////////////////////////////////////////////////////////////
 
 FsTimedMessage::FsTimedMessage()
@@ -121,6 +142,7 @@ void FsHasInFlightDialog::SetCurrentInFlightDialog(FsGuiInFlightDialog *dlg)
 		FsDisableIME();
 	}
 }
+
 
 FsGuiInFlightDialog *FsHasInFlightDialog::GetCurrentInFlightDialog(void) const
 {
@@ -301,10 +323,10 @@ FsSimulation::FsSimulation(FsWorld *w) : airplaneList(FsAirplaneAllocator),groun
 
 	centerJoystick=NULL;
 
-	fogColor.SetDoubleRGB(0.6,0.6,0.6);
 	gndColor.SetIntRGB(0,0,160);
 	gndSpecular=YSFALSE;
 	skyColor.SetIntRGB(0,128,192);
+	fogColor=FsMakeDaylightHazeColor(skyColor);
 }
 
 FsSimulation::~FsSimulation()
@@ -1480,7 +1502,7 @@ void FsSimulation::EnforceEnvironment(void)
 	{
 	case FSDAYLIGHT:
 		field.ApplyColorScale(1.0,1.0,0.7);
-		fogColor.SetDoubleRGB(0.6,0.6,0.6);
+		fogColor=FsMakeDaylightHazeColor(skyColor);
 		YsScenery::lightPointSizePix=1;
 		break;
 	case FSNIGHT:
@@ -6716,7 +6738,7 @@ void FsSimulation::SimDrawScreenZBufferSensitive(
 	switch(env)
 	{
 	case FSDAYLIGHT:
-		fogColor.SetDoubleRGB(0.6,0.6,0.6);
+		fogColor=FsMakeDaylightHazeColor(skyColor);
 		break;
 	case FSNIGHT:
 		fogColor.SetDoubleRGB(0.1,0.1,0.1);
@@ -6987,7 +7009,7 @@ void FsSimulation::SimDrawBackground(const ActualViewMode &actualViewMode,const 
 		gndSpecular=YSFALSE;
 		break;
 	case FSDAYLIGHT:
-		horizonColor.SetDoubleRGB(0.7,0.7,0.7);
+		horizonColor=FsMakeDaylightHazeColor(sky);
 		break;
 	}
 
@@ -13871,4 +13893,3 @@ void FsSimulation::CloseChatDialog(void)
 		FsDisableIME();
 	}
 }
-
