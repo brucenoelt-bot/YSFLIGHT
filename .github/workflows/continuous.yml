@@ -1,6 +1,7 @@
-name: Continuous Integration
+name: Baseline Build
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master ]
     tags-ignore:
@@ -8,15 +9,19 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 jobs:
   build-windows:
 
     runs-on: windows-latest
+    timeout-minutes: 30
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: checkout_public
-      run: git clone https://github.com/captainys/public.git
+      run: git clone --depth 1 https://github.com/captainys/public.git
     - name: mkdir
       run: mkdir ci_windows
     - name: cmake
@@ -32,11 +37,12 @@ jobs:
   build-linux:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: checkout_public
-      run: git clone https://github.com/captainys/public.git
+      run: git clone --depth 1 https://github.com/captainys/public.git
     - name: mkdir
       run: mkdir ci_ubuntu
     - name: apt-get-update
@@ -60,12 +66,13 @@ jobs:
 
   build-macos:
 
-    runs-on: macos-10.15
+    runs-on: macos-14
+    timeout-minutes: 30
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: checkout_public
-      run: git clone https://github.com/captainys/public.git
+      run: git clone --depth 1 https://github.com/captainys/public.git
     - name: mkdir
       run: mkdir ci_macos
     - name: cmake
